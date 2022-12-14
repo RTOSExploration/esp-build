@@ -1,0 +1,53 @@
+diff --git a/components/cxx/cxx_guards.cpp b/components/cxx/cxx_guards.cpp
+index 17d53b27ef..a724ebc685 100644
+--- a/components/cxx/cxx_guards.cpp
++++ b/components/cxx/cxx_guards.cpp
+@@ -167,7 +167,7 @@ extern "C" int __cxa_guard_acquire(__guard* pg)
+     return ret;
+ }
+ 
+-extern "C" void __cxa_guard_release(__guard* pg)
++extern "C" void __cxa_guard_release(__guard* pg) noexcept
+ {
+     guard_t* g = reinterpret_cast<guard_t*>(pg);
+     const auto scheduler_started = xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED;
+@@ -189,7 +189,7 @@ extern "C" void __cxa_guard_release(__guard* pg)
+     }
+ }
+ 
+-extern "C" void __cxa_guard_abort(__guard* pg)
++extern "C" void __cxa_guard_abort(__guard* pg) noexcept
+ {
+     guard_t* g = reinterpret_cast<guard_t*>(pg);
+     const auto scheduler_started = xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED;
+diff --git a/components/xtensa/project_include.cmake b/components/xtensa/project_include.cmake
+index c4deb4e984..aa5ccd591c 100644
+--- a/components/xtensa/project_include.cmake
++++ b/components/xtensa/project_include.cmake
+@@ -1,5 +1,5 @@
+ # Check toolchain is configured properly in cmake
+-if(NOT ( ${CMAKE_SYSTEM_NAME} STREQUAL "Generic" AND ${CMAKE_C_COMPILER} MATCHES xtensa))
++if(NOT ( ${CMAKE_SYSTEM_NAME} STREQUAL "Generic" AND ${CMAKE_C_COMPILER} MATCHES xtensa|wllvm))
+     message(FATAL_ERROR "Internal error, toolchain has not been set correctly by project "
+         "(or an invalid CMakeCache.txt file has been generated somehow)")
+ endif()
+diff --git a/tools/cmake/toolchain-clang-esp32.cmake b/tools/cmake/toolchain-clang-esp32.cmake
+index 1ed0850436..1e4dab15f8 100644
+--- a/tools/cmake/toolchain-clang-esp32.cmake
++++ b/tools/cmake/toolchain-clang-esp32.cmake
+@@ -2,9 +2,12 @@ include($ENV{IDF_PATH}/tools/cmake/utilities.cmake)
+ 
+ set(CMAKE_SYSTEM_NAME Generic)
+ 
+-set(CMAKE_C_COMPILER clang)
+-set(CMAKE_CXX_COMPILER clang++)
+-set(CMAKE_ASM_COMPILER clang)
++#set(CMAKE_C_COMPILER clang)
++#set(CMAKE_CXX_COMPILER clang++)
++#set(CMAKE_ASM_COMPILER clang)
++set(CMAKE_C_COMPILER wllvm)
++set(CMAKE_CXX_COMPILER wllvm++)
++set(CMAKE_ASM_COMPILER wllvm)
+ 
+ set(CMAKE_AR xtensa-esp32-elf-ar)
+ set(CMAKE_RANLIB xtensa-esp32-elf-gcc-ranlib)
